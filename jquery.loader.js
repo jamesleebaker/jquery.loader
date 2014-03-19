@@ -1,18 +1,22 @@
 (function ($) {
   var
-  defaults = {
-    overlay: true,
-    forcePosition: true,
-    centerSpinner: true,
-    size: 'normal',
-    loaderClassName: 'loader',
-    overlayClassName: 'overlay',
-    spinnerClassName: 'spinner',
-    width: 'parent',
-    height: 'parent',
-    loaderTemplate: '<div class="{loaderClassName}"></div>',
-    spinnerTemplate: '<span class="{spinnerClassName}"></span>'
-  },
+    defaults = {
+      overlay: true,
+      forcePosition: true,
+      centerSpinner: true,
+      size: null,
+      loaderClassName: 'loader',
+      overlayClassName: 'overlay',
+      spinnerClassName: 'spinner',
+      width: 'parent',
+      height: 'parent',
+      loaderTemplate: '<div class="{loaderClassName}"></div>',
+      spinnerTemplate: '<span class="{spinnerClassName}"></span>'
+    },
+    methods;
+
+  // static methods
+
   methods = {
     /**
      * Destroys the loader, its settings state, and the DOM elements
@@ -24,7 +28,7 @@
         var $element = $(this),
           settings = $element.data('_state');
 
-        $element.find('.' + settings.overlayClassName).remove();
+        $element.find('.' + settings.loaderClassName).remove();
         $.removeData(this);
       });
     },
@@ -35,7 +39,7 @@
      * @param {Object}  positions   The CSS rules to apply to the loader
      * @returns {*}
      */
-    reposition: function(positions) {
+    position: function(positions) {
       if(typeof positions !== 'object') {
         return this;
       }
@@ -46,6 +50,37 @@
       });
     },
 
+    reposition: function() {
+      return this.each(function(){
+        var settings = $(this).data('_state'),
+          $parent = $(this),
+          $loader = $(this).find('.' + settings.loaderClassName),
+          $spinner = $loader.find('.' + settings.spinnerClassName),
+          elementPosition = $parent.css('position');
+
+        if(elementPosition !== 'relative' || elementPosition !== 'absolute') {
+          if(settings.forcePosition) {
+            $parent.css('position', 'relative');
+          }
+        }
+
+        $loader.css({
+          width: settings.width === 'parent' ? $parent.innerWidth() : settings.width,
+          height: settings.height === 'parent' ? $parent.innerHeight() : settings.height
+        });
+
+        if(settings.centerSpinner) {
+          $spinner.css({
+            top: ($loader.innerHeight() - $spinner.height()) / 2,
+            left: ($loader.innerWidth() - $spinner.width()) / 2
+          });
+        }
+
+        if(settings.size) {
+          $spinner.addClass(settings.size);
+        }
+      });
+    },
     /**
      * Hides the loader from being visible
      * @returns {*}
@@ -73,6 +108,7 @@
     }
   };
 
+
   /**
    * Composes the plugin markup from the provided templates and applies the positioning styles
    * based on the settings provided
@@ -83,7 +119,7 @@
    */
   function _compose($parent, settings) {
     var loader = settings.loaderTemplate.replace('{loaderClassName}', settings.loaderClassName),
-      spinner = settings.spinnerTemplate.loader.replace('{spinnerClassName}', settings.spinnerClassName),
+      spinner = settings.spinnerTemplate.replace('{spinnerClassName}', settings.spinnerClassName),
       $loader = $(loader).append(spinner),
       $spinner = $loader.find('.' + settings.spinnerClassName),
       elementPosition = $parent.css('position');
@@ -94,22 +130,24 @@
       }
     }
 
-    if(settings.centerSpinner) {
-      $spinner.css({
-        position: 'absolute',
-        top: $loader.height() - ($spinner.height() / 2),
-        left: $loader.width() - ($spinner.width() / 2)
-      }).addClass(settings.size);
-    }
+    $loader.css({
+      width: settings.width === 'parent' ? $parent.innerWidth() : settings.width,
+      height: settings.height === 'parent' ? $parent.innerHeight() : settings.height
+    });
 
     if(settings.overlay) {
       $loader.addClass(settings.overlayClassName);
     }
 
-    $loader.css({
-      width: settings.width === 'parent' ? $element.width() : settings.width,
-      height: settings.height === 'parent' ? $element.height() : settings.height
-    });
+    $loader.appendTo($parent);
+
+    if(settings.centerSpinner) {
+      $spinner.css({
+        position: 'absolute',
+        top: ($loader.innerHeight() - $spinner.height()) / 2,
+        left: ($loader.innerWidth() - $spinner.width()) / 2
+      });
+    }
 
     return $loader;
   }
@@ -123,10 +161,19 @@
   function _init(options) {
     return this.each(function() {
       var $container = $(this),
+        self = this,
         settings = $.extend({}, defaults, options);
 
-      $(_compose($container, settings)).appendTo(this);
+      if($container.children('.' + settings.loaderClassName).length) {
+        return this;
+      }
+
+      _compose($container, settings);
       $container.data('_state', settings);
+
+      $(window).on('resize', function(event){
+        methods.reposition.call($container);
+      });
     });
   }
 
@@ -146,6 +193,6 @@
     }
 
     $.error('Method ' + method + ' does not exist on jQuery.loader');
-  }
+  };
 
 }(jQuery));
