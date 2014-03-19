@@ -75,10 +75,6 @@
             left: ($loader.innerWidth() - $spinner.width()) / 2
           });
         }
-
-        if(settings.size) {
-          $spinner.addClass(settings.size);
-        }
       });
     },
     /**
@@ -147,6 +143,10 @@
         top: ($loader.innerHeight() - $spinner.height()) / 2,
         left: ($loader.innerWidth() - $spinner.width()) / 2
       });
+    }
+
+    if(settings.size) {
+      $spinner.addClass(settings.size);
     }
 
     return $loader;
