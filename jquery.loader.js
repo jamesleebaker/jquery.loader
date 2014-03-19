@@ -4,6 +4,7 @@
     overlay: true,
     forcePosition: true,
     centerSpinner: true,
+    size: 'normal',
     loaderClassName: 'loader',
     overlayClassName: 'overlay',
     spinnerClassName: 'spinner',
@@ -98,7 +99,7 @@
         position: 'absolute',
         top: $loader.height() - ($spinner.height() / 2),
         left: $loader.width() - ($spinner.width() / 2)
-      });
+      }).addClass(settings.size);
     }
 
     if(settings.overlay) {
