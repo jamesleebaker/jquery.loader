@@ -1,18 +1,18 @@
-(function ($) {
+(function($) {
   var
-    defaults = {
-      overlay: true,
-      forcePosition: true,
-      centerSpinner: true,
-      size: null,
-      loaderClassName: 'loader',
-      overlayClassName: 'overlay',
-      spinnerClassName: 'spinner',
-      width: 'parent',
-      height: 'parent',
-      loaderTemplate: '<div class="{loaderClassName}"></div>',
-      spinnerTemplate: '<span class="{spinnerClassName}"></span>'
-    },
+  defaults = {
+    overlay: true,
+    forcePosition: true,
+    centerSpinner: true,
+    size: null,
+    loaderClassName: 'loader',
+    overlayClassName: 'overlay',
+    spinnerClassName: 'spinner',
+    width: 'parent',
+    height: 'parent',
+    loaderTemplate: '<div class="{loaderClassName}"></div>',
+    spinnerTemplate: '<span class="{spinnerClassName}"></span>'
+  },
     methods;
 
   // static methods
@@ -24,12 +24,14 @@
      * @returns {*}
      */
     destroy: function() {
-      return this.each(function(){
+      return this.each(function() {
         var $element = $(this),
           settings = $element.data('_state');
 
-        $element.find('.' + settings.loaderClassName).remove();
-        $.removeData(this);
+        if (settings.loaderClassName) {
+          $element.find('.' + settings.loaderClassName).remove();
+          $.removeData(this);
+        }
       });
     },
 
@@ -40,26 +42,29 @@
      * @returns {*}
      */
     position: function(positions) {
-      if(typeof positions !== 'object') {
+      if (typeof positions !== 'object') {
         return this;
       }
 
-      return this.each(function(){
+      return this.each(function() {
         var settings = $(this).data('_state');
-        $(this).find('.' + settings.loaderClassName).css(positions);
+
+        if (settings.loaderClassName) {
+          $(this).find('.' + settings.loaderClassName).css(positions);
+        }
       });
     },
 
     reposition: function() {
-      return this.each(function(){
+      return this.each(function() {
         var settings = $(this).data('_state'),
           $parent = $(this),
           $loader = $(this).find('.' + settings.loaderClassName),
           $spinner = $loader.find('.' + settings.spinnerClassName),
           elementPosition = $parent.css('position');
 
-        if(elementPosition !== 'relative' || elementPosition !== 'absolute') {
-          if(settings.forcePosition) {
+        if (elementPosition !== 'relative' || elementPosition !== 'absolute') {
+          if (settings.forcePosition) {
             $parent.css('position', 'relative');
           }
         }
@@ -69,7 +74,7 @@
           height: settings.height === 'parent' ? $parent.innerHeight() : settings.height
         });
 
-        if(settings.centerSpinner) {
+        if (settings.centerSpinner) {
           $spinner.css({
             top: ($loader.innerHeight() - $spinner.height()) / 2,
             left: ($loader.innerWidth() - $spinner.width()) / 2
@@ -82,11 +87,13 @@
      * @returns {*}
      */
     hide: function() {
-      return this.each(function(){
+      return this.each(function() {
         var $element = $(this),
           settings = $element.data('_state');
 
-        $element.find('.' + settings.loaderClassName).hide();
+        if (settings.loaderClassName) {
+          $element.find('.' + settings.loaderClassName).hide();
+        }
       });
     },
 
@@ -95,11 +102,13 @@
      * @returns {*}
      */
     show: function() {
-      return this.each(function(){
+      return this.each(function() {
         var $element = $(this),
           settings = $element.data('_state');
 
-        $element.find('.' + settings.loaderClassName).show();
+        if (settings.loaderClassName) {
+          $element.find('.' + settings.loaderClassName).show();
+        }
       });
     }
   };
@@ -120,8 +129,8 @@
       $spinner = $loader.find('.' + settings.spinnerClassName),
       elementPosition = $parent.css('position');
 
-    if(elementPosition !== 'relative' || elementPosition !== 'absolute') {
-      if(settings.forcePosition) {
+    if (elementPosition !== 'relative' || elementPosition !== 'absolute') {
+      if (settings.forcePosition) {
         $parent.css('position', 'relative');
       }
     }
@@ -131,22 +140,22 @@
       height: settings.height === 'parent' ? $parent.innerHeight() : settings.height
     });
 
-    if(settings.overlay) {
+    if (settings.overlay) {
       $loader.addClass(settings.overlayClassName);
     }
 
     $loader.appendTo($parent);
 
-    if(settings.centerSpinner) {
+    if (settings.size) {
+      $spinner.addClass(settings.size);
+    }
+
+    if (settings.centerSpinner) {
       $spinner.css({
         position: 'absolute',
         top: ($loader.innerHeight() - $spinner.height()) / 2,
         left: ($loader.innerWidth() - $spinner.width()) / 2
       });
-    }
-
-    if(settings.size) {
-      $spinner.addClass(settings.size);
     }
 
     return $loader;
@@ -164,14 +173,14 @@
         self = this,
         settings = $.extend({}, defaults, options);
 
-      if($container.children('.' + settings.loaderClassName).length) {
+      if ($container.children('.' + settings.loaderClassName).length) {
         return this;
       }
 
       _compose($container, settings);
       $container.data('_state', settings);
 
-      $(window).on('resize', function(event){
+      $(window).on('resize', function(event) {
         methods.reposition.call($container);
       });
     });
