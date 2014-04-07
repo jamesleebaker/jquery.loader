@@ -28,7 +28,7 @@
         var $element = $(this),
           settings = $element.data('_state');
 
-        if (settings.loaderClassName) {
+        if (settings) {
           $element.find('.' + settings.loaderClassName).remove();
           $.removeData(this);
         }
@@ -49,7 +49,7 @@
       return this.each(function() {
         var settings = $(this).data('_state');
 
-        if (settings.loaderClassName) {
+        if (settings) {
           $(this).find('.' + settings.loaderClassName).css(positions);
         }
       });
@@ -91,7 +91,7 @@
         var $element = $(this),
           settings = $element.data('_state');
 
-        if (settings.loaderClassName) {
+        if (settings) {
           $element.find('.' + settings.loaderClassName).hide();
         }
       });
@@ -106,7 +106,7 @@
         var $element = $(this),
           settings = $element.data('_state');
 
-        if (settings.loaderClassName) {
+        if (settings) {
           $element.find('.' + settings.loaderClassName).show();
         }
       });
